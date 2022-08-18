@@ -36,8 +36,8 @@ public class CalculadoraController implements Initializable {
     private String num1 = "";
     private String num2 = "";
     private String operacion = "";
-    private String expr;
-    private double resultado;
+    private String expr = "";
+    private double resultado = 0;
     private Alert alert = new Alert(AlertType.WARNING);
     @FXML private Label ex;
     @FXML private Label result;
@@ -52,7 +52,8 @@ public class CalculadoraController implements Initializable {
         num1 = "";
         num2 = "";
         operacion = "";
-        
+        expr = "";
+        resultado = 0;     
     }
     
     
@@ -78,7 +79,7 @@ public class CalculadoraController implements Initializable {
             num2 += num;
         }
         // Mostrar el label de la expresion realizada
-        expr = num1 + operacion + num2;
+        expr += num;
         ex.setText(expr);
         // Establecer el resultado de la expresion (si esta completa esta)
         setResultado();
@@ -89,7 +90,7 @@ public class CalculadoraController implements Initializable {
         // TODO: CHANGE THE NUMBERS SHOWN IN THE LABEL
         if (operacion.isBlank() && !num1.isBlank()){
             operacion = oper;
-            expr = num1 + operacion;
+            expr += operacion;
             ex.setText(expr);
         }else if (num1.isBlank()){
             /* 
@@ -97,13 +98,24 @@ public class CalculadoraController implements Initializable {
             número
             */
             calcERROR("SYNTAX ERROR");
-        }else{
+        }else if (num2.isBlank() && !operacion.isBlank()){
             // Indicar al usuario que no se permiten operaciones anidadas
             alert.setTitle("Advertencia");
             alert.setHeaderText("Operacion denegada");
             alert.setContentText("No se permiten operaciones "
                     + "anidadas");
             alert.showAndWait();
+        }else{
+            /*
+            Se calcula el resultado y se usa este como num1
+            para hacer multiples operaciones
+            */
+            setResultado();
+            num1 = String.valueOf(resultado);
+            operacion = oper;
+            expr += operacion;
+            ex.setText(expr);
+            num2 = "";
         }
         
     }
@@ -134,7 +146,7 @@ public class CalculadoraController implements Initializable {
                         }
                         break;
                     case "^":
-                        resultado = (double) Math.pow(Rnum1, Rnum2); 
+                        resultado += (double) Math.pow(Rnum1, Rnum2); 
                         break;
                 }
                 // Establecer el texto de la Label con el resultado
@@ -150,7 +162,9 @@ public class CalculadoraController implements Initializable {
         num2 = "";
         operacion = "";
         ex.setText("0");
+        expr = "";
         result.setText("");
+        resultado = 0;
     }
     
     /* CE Button functionality
@@ -164,10 +178,12 @@ public class CalculadoraController implements Initializable {
             num1 = "";
             operacion = "";
             ex.setText("0");
+            expr = "";
             result.setText("");
         }else{
             num2 = "";
             ex.setText(num1 + operacion);
+            expr = num1 + operacion;
             result.setText("");
         }
     }
@@ -183,7 +199,8 @@ public class CalculadoraController implements Initializable {
             // Se escribio la operacion completa
             ex.setText(result.getText());
             result.setText("");
-            num1 = "";
+            num1 = String.valueOf(resultado);
+            expr = num1;
             num2 = "";
             operacion = "";
         }else if (!num1.isBlank() && operacion.isBlank()){
